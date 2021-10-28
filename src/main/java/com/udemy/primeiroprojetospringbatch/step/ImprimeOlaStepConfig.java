@@ -1,29 +1,35 @@
 package com.udemy.primeiroprojetospringbatch.step;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.listener.JobListenerFactoryBean;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.function.FunctionItemProcessor;
-import org.springframework.batch.item.support.IteratorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.udemy.primeiroprojetospringbatch.listener.StepLoggerListener;
+
 @Configuration
 public class ImprimeOlaStepConfig {
 
-	@Autowired
-	private StepBuilderFactory stepBuilderFactory;
 	
+	private StepBuilderFactory stepBuilderFactory;
+	private StepLoggerListener stepLoggerListener;
+	
+	@Autowired
+	public ImprimeOlaStepConfig(StepBuilderFactory stepBuilderFactory,StepLoggerListener stepLoggerListener) {
+		this.stepBuilderFactory = stepBuilderFactory;
+		this.stepLoggerListener = stepLoggerListener;
+	}
+
+
+
 	@Bean
 	public Step imprimeOlaStep(Tasklet imprimeOlaTasklet) {
 		return stepBuilderFactory
 				.get("imprimeOlaStep")
+				.listener(stepLoggerListener)
 				.tasklet(imprimeOlaTasklet)// para etapas simples que nao requer muito processamento de dados
 				.build();
 	}

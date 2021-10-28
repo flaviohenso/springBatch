@@ -45,9 +45,9 @@ public class BatchConfig {
 	public Job imprimeParOuImparJob(Step imprimeParouImparStep) {
 		return jobBuilderFactory
 				.get("imprimeParOuImparJob")
-				.start(imprimeParouImparStep)
-				.listener(JobListenerFactoryBean.getListener(jobLoggerListener))
 				.incrementer(new RunIdIncrementer())
+				.listener(JobListenerFactoryBean.getListener(jobLoggerListener))
+				.start(imprimeParouImparStep)
 				.build();
 	}
 	

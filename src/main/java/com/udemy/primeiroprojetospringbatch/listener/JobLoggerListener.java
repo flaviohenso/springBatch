@@ -19,6 +19,7 @@ public class JobLoggerListener {
 	
 	@AfterJob
 	public void afterJob(JobExecution jobExecution) {
+//		jobExecution.setStatus(BatchStatus.ABANDONED);
 		System.out.println(
 				String.format(END_MESSAGE,
 						jobExecution.getJobInstance().getJobName(),
