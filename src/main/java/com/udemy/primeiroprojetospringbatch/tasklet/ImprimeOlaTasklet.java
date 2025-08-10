@@ -15,7 +15,8 @@ public class ImprimeOlaTasklet {
 		return new Tasklet() {
 			@Override
 			public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-				System.out.println("Olá Mundo! Java 21 + Spring Boot 3.x funcionando!");
+				String nome = chunkContext.getStepContext().getJobParameters().get("nome").toString();
+				System.out.println(String.format("Olá Mundo %s", nome));
 				return RepeatStatus.FINISHED;
 			}
 		};
