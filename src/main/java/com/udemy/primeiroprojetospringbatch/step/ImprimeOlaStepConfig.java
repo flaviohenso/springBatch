@@ -1,12 +1,14 @@
 package com.udemy.primeiroprojetospringbatch.step;
 
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.listener.JobListenerFactoryBean;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.udemy.primeiroprojetospringbatch.listener.StepLoggerListener;
 
@@ -14,23 +16,24 @@ import com.udemy.primeiroprojetospringbatch.listener.StepLoggerListener;
 public class ImprimeOlaStepConfig {
 
 	
-	private StepBuilderFactory stepBuilderFactory;
+	private JobRepository jobRepository;
 	private StepLoggerListener stepLoggerListener;
+	private PlatformTransactionManager transactionManager;
 	
 	@Autowired
-	public ImprimeOlaStepConfig(StepBuilderFactory stepBuilderFactory,StepLoggerListener stepLoggerListener) {
-		this.stepBuilderFactory = stepBuilderFactory;
+	public ImprimeOlaStepConfig(JobRepository jobRepository, StepLoggerListener stepLoggerListener, PlatformTransactionManager transactionManager) {
+		this.jobRepository = jobRepository;
 		this.stepLoggerListener = stepLoggerListener;
+		this.transactionManager = transactionManager;
 	}
 
 
 
 	@Bean
-	public Step imprimeOlaStep(Tasklet imprimeOlaTasklet) {
-		return stepBuilderFactory
-				.get("imprimeOlaStep")
+	public Step imprimeOlaStep(Tasklet imprimeOlaTaskletBean) {
+		return new StepBuilder("imprimeOlaStep", jobRepository)
 				.listener(stepLoggerListener)
-				.tasklet(imprimeOlaTasklet)// para etapas simples que nao requer muito processamento de dados
+				.tasklet(imprimeOlaTaskletBean, transactionManager)
 				.build();
 	}
 

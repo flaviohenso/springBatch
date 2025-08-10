@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.listener.JobListenerFactoryBean;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.function.FunctionItemProcessor;
@@ -12,25 +13,33 @@ import org.springframework.batch.item.support.IteratorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.udemy.primeiroprojetospringbatch.listener.StepLoggerListener;
 
 @Configuration
 public class ImprimeParouImparStepConfig {
 
-	private StepBuilderFactory stepBuilderFactory;
+	private JobRepository jobRepository;
 	private StepLoggerListener stepLoggerListener;
+	private PlatformTransactionManager transactionManager;
 
 	@Autowired
-	public ImprimeParouImparStepConfig(StepBuilderFactory stepBuilderFactory, StepLoggerListener stepLoggerListener) {
-		this.stepBuilderFactory = stepBuilderFactory;
+	public ImprimeParouImparStepConfig(JobRepository jobRepository, StepLoggerListener stepLoggerListener, PlatformTransactionManager transactionManager) {
+		this.jobRepository = jobRepository;
 		this.stepLoggerListener = stepLoggerListener;
+		this.transactionManager = transactionManager;
 	}
 
 	@Bean
 	public Step imprimeParouImparStep() {
-		return stepBuilderFactory.get("imprimiParouImpar").<Integer, String>chunk(5).reader(this.contaAteDez())
-				.processor(this.parOuImparProcessor()).writer(imprimirWriter()).listener(stepLoggerListener).build();
+		return new StepBuilder("imprimiParouImpar", jobRepository)
+				.<Integer, String>chunk(5, transactionManager)
+				.reader(this.contaAteDez())
+				.processor(this.parOuImparProcessor())
+				.writer(imprimirWriter())
+				.listener(stepLoggerListener)
+				.build();
 	}
 
 	private ItemWriter<? super String> imprimirWriter() {
